@@ -52,7 +52,12 @@ func main() {
 	}
 
 	for {
-		ch <- time.Now().Nanosecond()
-		time.Sleep(100 * time.Millisecond)
+		select {
+		case <-ctx.Done():
+			return // если получаем отмену контектста, то выходим
+		default: // пока нет отмены → продолжаем слать данные
+			ch <- time.Now().Nanosecond()
+			time.Sleep(100 * time.Millisecond)
+		}
 	}
 }
