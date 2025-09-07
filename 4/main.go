@@ -4,7 +4,9 @@ import (
 	"context"
 	"log"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 )
 
@@ -30,6 +32,13 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	ctrlc := make(chan os.Signal, 1)
+	signal.Notify(ctrlc, syscall.SIGINT) // ловим системный вызов завершения
+	go func() {                          // запускаем горутину, которая будет ожидать получения сискола
+		<-ctrlc // ожидаем получения, не блокируя выполнения
+		cancel()
+	}()
+
 	ch := make(chan int)
 
 	for i := 0; i < wn; i++ {
@@ -43,7 +52,7 @@ func main() {
 					}
 					log.Printf("Воркер: %d, Полученное значение: %d\n", worker_id, val)
 				case <-ctx.Done():
-					log.Println("Команда завершения работы")
+					log.Printf("Команда завершения работы воркера %d", worker_id)
 					return
 				}
 
