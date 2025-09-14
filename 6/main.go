@@ -15,6 +15,8 @@ func main() {
 	stopByCondition()
 	// Остановка при закрытии канала данных
 	stopByChannelClosing()
+	// Остановка через context.Timeout
+	stopByContextTimeout()
 }
 func stopByNotificationChannel() {
 	var wg sync.WaitGroup
@@ -121,4 +123,28 @@ func stopByChannelClosing() {
 	log.Println("Закрываем канал datChan горутины stopByChannelClosing")
 	close(dataChan)
 	wg.Wait() // Использую wg.Wait(), чтобы функция дождалась вывода данных горутиной и корректно
+}
+
+func stopByContextTimeout() {
+	var wg sync.WaitGroup
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Microsecond)
+	defer cancel()
+
+	wg.Add(1)
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				log.Println("Горутина stopByContextTimeout остановлена по таймауту")
+				wg.Done()
+				return
+			default:
+				log.Printf("stopByContextTimeout получила %d\n", time.Now().Unix())
+				time.Sleep(10000 * time.Nanosecond)
+			}
+		}
+	}()
+
+	<-ctx.Done()
+	wg.Wait()
 }
