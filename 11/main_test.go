@@ -9,7 +9,7 @@ func TestIntersection(t *testing.T) {
 		b        []int
 		expected []int
 	}{
-		{name: "Пример пересечения по заданию",
+		{name: "пример пересечения по заданию",
 			a:        []int{1, 2, 3},
 			b:        []int{2, 3, 4},
 			expected: []int{2, 3},
@@ -26,6 +26,18 @@ func TestIntersection(t *testing.T) {
 			b:        []int{30, 40, 50},
 			expected: []int{30},
 		},
+		{
+			name:     "оба пустых",
+			a:        []int{},
+			b:        []int{},
+			expected: []int{},
+		},
+		{
+			name:     "идентичные заполненные",
+			a:        []int{1, 2, 3},
+			b:        []int{1, 2, 3},
+			expected: []int{1, 2, 3},
+		},
 	}
 
 	for _, tt := range tests {
@@ -40,11 +52,11 @@ func TestIntersection(t *testing.T) {
 }
 
 func equal(a, b []int) bool {
-	if len(a) != len(b) { // крайний случай
+	if len(a) != len(b) {
 		return false
 	}
 
-	intersectsCounters := make(map[int]int) // считаем, какое число сколько раз встречается
+	intersectsCounters := make(map[int]int)
 
 	for _, valA := range a {
 		intersectsCounters[valA]++
@@ -52,7 +64,7 @@ func equal(a, b []int) bool {
 
 	for _, valB := range b {
 		intersectsCounters[valB]--
-		if intersectsCounters[valB] < 0 { // если какое-то значение будет меньше 0, значит элементы встречаются с разной частотой
+		if intersectsCounters[valB] < 0 {
 			return false
 		}
 	}
